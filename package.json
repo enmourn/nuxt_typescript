@@ -1,0 +1,18 @@
+{
+  "name": "node_nuxt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nuxt"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-sass": "^4.9.0",
+    "nuxt": "^1.4.0",
+    "sass-loader": "^7.0.1",
+    "vue-style-loader": "^4.1.0"
+  },
+  "devDependencies": {}
+}
