@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nuxt"
+    "dev": "nuxt",
+    "lint:js": "eslint --ext .vue --ignore-path .gitignore ."
   },
   "author": "",
   "license": "ISC",
@@ -14,5 +15,8 @@
     "sass-loader": "^7.0.1",
     "vue-style-loader": "^4.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-plugin-vue": "^4.5.0"
+  }
 }

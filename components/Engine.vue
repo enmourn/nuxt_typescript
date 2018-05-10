@@ -2,7 +2,7 @@
 	<form>
 		<input v-model="$store.state.message" placeholder="Введите число"/>
 		<button type="button" v-on:click="calc">Посчитать</button>
-		<textarea>{{ result }}</textarea>
+		<textarea v-model="result"></textarea>
 	</form>
 </template>
 
