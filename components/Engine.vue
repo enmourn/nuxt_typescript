@@ -13,7 +13,7 @@
 		},
 		methods: {
 			calc: function() {
-				this.result = this.$store.state.counter + this.$store.state.message
+				this.result = this.$store.state.counter + parseInt(this.$store.state.message)
 			}
 		}
 	}
