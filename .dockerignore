@@ -1,0 +1,7 @@
+.git
+.idea
+.nuxt
+docker
+node_modules
+.gitignore
+package-lock.json
