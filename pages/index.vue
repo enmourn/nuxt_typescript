@@ -5,10 +5,10 @@
 	</section>
 </template>
 
-<script>
+<script lang="ts">
 	import { Store } from 'vuex'
-	import Counter from '~/components/Counter'
-	import Engine from '~/components/Engine'
+	import Counter from '~/components/Counter.vue'
+	import Engine from '~/components/Engine.vue'
 
 	export default {
 		components: {

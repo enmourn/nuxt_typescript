@@ -6,10 +6,10 @@
 	</form>
 </template>
 
-<script>
+<script lang="ts">
 	export default {
-		data () {
-			return {result: null}
+		data: () : {result: number} => {
+			return {result: 0}
 		},
 		methods: {
 			calc: function() {
