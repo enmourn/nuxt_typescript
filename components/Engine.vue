@@ -1,22 +1,22 @@
 <template>
 	<form>
-		<input v-model="$store.state.message" placeholder="Введите число"/>
+		<input v-model="message" placeholder="Введите число"/>
 		<button type="button" v-on:click="calc">Посчитать</button>
 		<textarea v-model="result"></textarea>
 	</form>
 </template>
 
 <script lang="ts">
-	export default {
-		data: () : {result: number} => {
-			return {result: 0}
-		},
-		methods: {
-			calc: function() {
-				this.result = this.$store.state.counter + parseInt(this.$store.state.message)
-			}
-		}
-	}
+  import { Component, Vue } from "nuxt-property-decorator"
+
+  @Component({})
+	export default class Engine extends Vue {
+    result: any = null
+    message: number = 0
+    calc() {
+      this.result = this.result + this.message
+    }
+  }
 </script>
 
 <style lang="scss" scoped>

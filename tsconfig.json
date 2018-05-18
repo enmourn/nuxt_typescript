@@ -12,6 +12,7 @@
       "~/*": ["./*"]
     },
     "allowJs": true,
-    "noImplicitThis": false
+    "experimentalDecorators": true
+
   }
 }
