@@ -1,68 +1,89 @@
 <template>
   <div class="city_input">
-    <input :value=cityToStr(select_selected) title="some_input" @click="select_showed = true">
-    <div v-show="select_showed">
-      <input v-model="input_text" title="some_input" v-focus="select_showed" @focus="awaitUserTyping()" @blur="select_showed = false">
-      <select v-model="select_selected" :size="Math.min(cities.length, chunk_cities)" title="some_select">
-        <option v-for="city in cities" :value=city>{{ cityToStr(city) }}</option>
+    <input :value=cityToStr(select_selected) title="some_input" @focus="search_showed = true">
+    <div v-show="search_showed">
+      <input
+        v-model="current_search.query"
+        title="some_input"
+        v-focus="search_showed"
+        @focus="search()"
+      >
+      <select v-model="select_selected" @scroll="selectScroll" :size="4" title="some_select">
+        <option v-for="city in current_search.cities" :value=city>{{ cityToStr(city) }}</option>
       </select>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-  import {Vue, Component, Provide, Watch} from "nuxt-property-decorator"
-  import { City, CityResponse } from '~/types'
+  import { Vue, Component, Provide, Watch } from "nuxt-property-decorator"
+  import { City, CurrentSearch, SearchResponse } from '~/types'
   import { AxiosResponse } from 'axios'
   import Timer = NodeJS.Timer;
 
   @Component({})
   class CityInput extends Vue {
-    @Provide() select_showed: boolean = false
-    @Provide() input_text: string = ''
-    @Provide() cities: Array<City> = []
+    @Provide() search_showed: boolean = false
     @Provide() city: City | null = null
     @Provide() select_selected: City | null = null
-    @Provide() current_timeout: Timer | null = null;
-    @Provide() chunk_cities: number = 8
-    @Provide() cityToStr(city : City | null): string {
-      if (!city) {
-        return ''
-      }
-      return `${city.title}${city.area ? ', ' + city.area : ''}${city.region ? ', ' + city.region : ''}`
+
+    @Provide() scroll_lock: boolean = false
+    @Provide() current_timeout: Timer | null = null
+    @Provide() current_search: CurrentSearch = {
+      query: '',
+      chunk_size: 8,
+      offset: 0,
+      count: 0,
+      cities: []
     }
-    @Provide() async getCitiesFromVK(offset: number): Promise<Array<City>> {
-      let request: string = `geolocation/city/?q=${this.input_text}&offset=${offset}&count=${this.chunk_cities}`
-      let res_str: AxiosResponse = await this.$axios.get(request)
-      let res: CityResponse = JSON.parse(res_str.request.response).response
-      return res.items
-    }
-    @Watch('input_text')
+    @Watch('current_search.query')
     awaitUserTyping() {
       if (this.current_timeout) {
         clearTimeout(this.current_timeout);
       }
       this.current_timeout = setTimeout(() => {
-        this.getCitiesFromVK(0).then(cities => {
-          this.cities = cities
-        })
+        this.clearCurrentSearch()
+        this.search()
         return true
       }, 500);
+    }
+    @Provide() async search() {
+      if (this.current_search.offset !== 0 && this.current_search.offset >= this.current_search.count) return false
+      let request: string = `geolocation/city/?q=${this.current_search.query}`
+          request += `&offset=${this.current_search.offset}`
+          request += `&count=${this.current_search.chunk_size}`
+      let res_str: AxiosResponse = await this.$axios.get(request)
+      let res: SearchResponse = JSON.parse(res_str.request.response).response
+      this.current_search.offset += this.current_search.chunk_size
+      this.current_search.count = res.count
+      this.current_search.cities.push(...res.items)
+      this.scroll_lock = false
+    }
+    @Provide() clearCurrentSearch() {
+      this.current_search.offset = 0
+      this.current_search.count = 0
+      this.current_search.cities = []
+    }
+    @Provide() selectScroll(e: any) {
+      let o: any = e.target
+      if (o.offsetHeight + o.scrollTop >= o.scrollHeight && !this.scroll_lock) {
+        this.scroll_lock = true
+        this.search()
+      }
+    }
+    @Provide() cityToStr(city : City | null): string {
+      return city ? `${city.title}${city.area ? ', ' + city.area : ''}${city.region ? ', ' + city.region : ''}` : ''
     }
     @Watch('select_selected')
     onSelect() {
       this.city = this.select_selected
-      this.select_showed = false
-      this.input_text = ''
-      this.cities = []
+      this.search_showed = false
+      this.clearCurrentSearch()
     }
-
   }
 
   CityInput.directive('focus', {
-    // When the bound element is inserted into the DOM...
     update: function (el, binding) {
-      // Focus the element
       if (binding.expression) {
         el.focus()
       }
@@ -75,8 +96,15 @@
   .city_input {
     margin-left: 30px;
     display: grid;
-    select {
-      margin-top: 4px;
+    width: 400px;
+    position: relative;
+    div {
+      position: absolute;
+      display: grid;
+      width: 100%;
+      select {
+        width: 100%;
+      }
     }
   }
 </style>
